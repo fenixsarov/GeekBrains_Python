@@ -69,7 +69,7 @@ while True:
     number = turtle.numinput("Попробуй угадать", "Число", 0, -10, 100 )
 
     if hints:
-        gotoxy(220, 200 - try_count * 12)
+        gotoxy(170, 200 - try_count * 12)
         if number < x:
             turtle.write(str(number) + " Загаданное число больше")
         else:
