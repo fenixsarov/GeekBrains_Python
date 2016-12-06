@@ -28,7 +28,7 @@ print([x for x in fructs1 if x in fructs2])
 # + Элемент положительный
 # + Элемент не кратен 4
 # Разделитель
-print(40*'=','\nЗадание-2:\n')
+print(40*'=','\nЗадание-3:\n')
 
 nums = [x for x in range(-10, 100)]
 
