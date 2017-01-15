@@ -1,0 +1,116 @@
+(function() {
+    $(document).on('submit', 'form.comment-form', function() {
+        $('.comment-errors-container').empty().hide();
+        var $form = $(this);
+        var data = $form.serialize();
+        var url = $form.attr('action');
+        var button = $form.find('.btn-submit');
+        button.attr('disabled', true);
+
+        $.post(url, data, function(response) {
+            if (response.success) {
+                noty({
+                    layout: 'top',
+                    type: 'confirm', // 'information', 'alert', 'confirm', 'warning'
+                    template: '<div class="noty_message">' +
+                    '<span class="noty_text"></span></a>' +
+                    '<span class="nclose"></span>' +
+                    '</div>',
+                    text: 'Комментарий успешно добавлен',
+                    timeout: 2000
+                });
+                $form[0].reset();
+                $('.no-comments-container').remove();
+                if (!response.comment.parentId) {
+                    $('#comments').append(response.comment.content);
+                } else {
+                    $('#comment-' + response.comment.parentId).append(response.comment.content);
+                    $('.reply-comment-form').addClass('hidden');
+                }
+            } else {
+                var errors = [];
+                $(response.form.errors.fields).each(function(index, item) {
+                    for (var i in item) {
+                        errors.push(item[i][0]);
+                    }
+                });
+
+                noty({
+                    layout: 'top',
+                    type: 'alert', // 'information', 'alert', 'confirm', 'warning'
+                    template: '<div class="noty_message">' +
+                    '<span class="noty_text"></span></a>' +
+                    '<span class="nclose"></span>' +
+                    '</div>',
+                    text: errors.join('<br>'),
+                    timeout: 2000
+                });
+            }
+
+            button.removeAttr('disabled');
+        });
+
+        return false;
+    });
+
+    $(document).on('click', '.comment-reply', function() {
+        var id = $(this).data('id');
+        $('.reply-comment-form').addClass('hidden');
+        $('#comment-form-' + id).removeClass('hidden');
+
+        return false;
+    });
+
+    $(document).on('click', '.comment-increase-vote', function() {
+
+        if (!$(this).hasClass('disabled')) {
+            var url = $(this).attr('href');
+            var id = $(this).data('id');
+
+            $.post(url);
+
+            var votes = parseInt($('#comment-vote-' + id).attr('data-votes'));
+            votes += 1;
+            var commentVote = $('#comment-vote-' + id);
+            commentVote.attr('data-votes', votes).text(votes);
+
+            if (votes > 0) {
+                commentVote.removeClass('null').addClass('pos');
+            } else if (votes < 0) {
+                commentVote.removeClass('null').addClass('neg');
+            } else {
+                commentVote.removeClass('pos').removeClass('neg').addClass('null');
+            }
+
+            $('.comment-change-vote-' + id).addClass('disabled');
+        }
+
+        return false;
+    });
+
+    $(document).on('click', '.comment-reduce-vote', function() {
+        if (!$(this).hasClass('disabled')) {
+            var url = $(this).attr('href');
+            var id = $(this).data('id');
+
+            $.post(url);
+
+            var votes = parseInt($('#comment-vote-' + id).attr('data-votes'));
+            votes -= 1;
+            var commentVote = $('#comment-vote-' + id);
+            commentVote.attr('data-votes', votes).text(votes);
+
+            if (votes > 0) {
+                commentVote.removeClass('null').addClass('pos');
+            } else if (votes < 0) {
+                commentVote.removeClass('null').addClass('neg');
+            } else {
+                commentVote.removeClass('pos').removeClass('neg').addClass('null');
+            }
+
+            $('.comment-change-vote-' + id).addClass('disabled');
+        }
+
+        return false;
+    });
+})();

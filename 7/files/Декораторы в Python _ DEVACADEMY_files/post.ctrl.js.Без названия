@@ -1,0 +1,55 @@
+(function($) {
+    $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+    });
+
+    $('[data-post-like]').on('click', function() {
+        var $this = $(this);
+        var url = $this.data('post-like');
+        var $countContainer = $('.a-favs [data-count]');
+        var count = parseInt($countContainer.attr('data-count')) + 1;
+        $countContainer.attr('data-count', count);
+        $countContainer.text(count);
+        $this.hide();
+        $('[data-post-unlike]').show();
+        $.post(url);
+
+        return false;
+    });
+
+    $('[data-post-unlike]').on('click', function() {
+        var $this = $(this);
+        var url = $this.data('post-unlike');
+        var $countContainer = $('.a-favs [data-count]');
+        var count = parseInt($countContainer.attr('data-count')) - 1;
+        $countContainer.attr('data-count', count);
+        $countContainer.text(count);
+        $this.hide();
+        $('[data-post-like]').show();
+        $.post(url);
+
+        return false;
+    });
+
+    $('[data-post-favorite]').on('click', function() {
+        var $this = $(this);
+        var url = $(this).data('post-favorite');
+        $this.hide();
+        $('[data-post-unfavorite]').show();
+        $.post(url);
+
+        return false;
+    });
+
+    $('[data-post-unfavorite]').on('click', function() {
+        var $this = $(this);
+        var url = $(this).data('post-unfavorite');
+        $this.hide();
+        $('[data-post-favorite]').show();
+        $.post(url);
+
+        return false;
+    });
+
+    $('.col.sidebar').height($('.maincontent.post').height());
+})(jQuery);

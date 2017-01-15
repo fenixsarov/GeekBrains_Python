@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)http://devacademy.ru/posts/dekoratoryi-v-python/ -->
+<html lang="ru"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <title>    Декораторы в Python / DEVACADEMY
+</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <meta name="format-detection" content="telephone=no">
+        <link href="http://devacademy.ru/bundles/daeweb/images/favicon.png?2" rel="icon" type="image/x-icon">
+
+                        <link rel="stylesheet" href="./Декораторы в Python _ DEVACADEMY_files/style.css">
+        
+
+    <link rel="stylesheet" href="./Декораторы в Python _ DEVACADEMY_files/github.css">
+    <link rel="stylesheet" href="./Декораторы в Python _ DEVACADEMY_files/social-likes_birman.css">
+    </head>
+<body>
+
+<div class="wrapper">
+    <header class="header cf">
+        <div class="section">
+            <div class="col span_2_of_12 logo">
+                <a href="http://devacademy.ru/">DEVACADEMY</a>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"></button>
+            </div>
+            <div class="navbar-collapse collapse col span_10_of_12">
+                        <ul class="mainmenu col span_6_of_12">
+            
+                <li class="active first">        <a href="http://devacademy.ru/">    Статьи</a>        
+    </li>
+
+    
+                <li class="last">        <a href="http://devacademy.ru/snippets/">    Сниппеты</a>        
+    </li>
+
+
+    </ul>
+
+
+                                    <ul class="col span_6_of_12 login text-right">
+                                                    <li><a href="http://devacademy.ru/posts/dekoratoryi-v-python/#" data-popup="login">Войти</a></li>
+                            <li><a href="http://devacademy.ru/register/">Регистрация</a></li>
+                                            </ul>
+                            </div>
+        </div>
+    </header>
+
+        <div class="content section">
+        <div class="group">
+            <div class="col span_8_of_12 maincontent post">
+                                    <a href="http://devacademy.ru/posts/dekoratoryi-v-python/" class="a-fav" data-popup="login"></a>
+                
+                <div class="category">
+                    <a href="http://devacademy.ru/posts/blogs/python/">
+                                                    <img src="./Декораторы в Python _ DEVACADEMY_files/ico-python.png" alt="">
+                                                Python
+                        <span class="num">9</span>
+                    </a>
+                </div>
+
+                <h1>Декораторы в Python</h1>
+
+                <div class="dateline">
+                    <span class="date">2 года назад</span>
+                                    </div>
+
+                <p class="bg-primary">Декораторы в Python</p>
+
+                <h3>Функции в Python - объекты</h3>
+<p>Для понимания декораторов, сначала надо осознать, что все функции в Python это объекты. Что влечет за собой ряд последствий. Рассмотрим их на простом примере:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">shout</span><span class="hljs-params">(word=<span class="hljs-string">"yes"</span>)</span>:</span>
+    <span class="hljs-keyword">return</span> word.capitalize()+<span class="hljs-string">"!"</span>
+
+<span class="hljs-keyword">print</span> shout()
+<span class="hljs-comment"># outputs : 'Yes!'print</span>
+
+<span class="hljs-comment"># так как это объект, вы можете назначить функцию переменной </span>
+scream = shout
+
+<span class="hljs-comment"># Обратите внимание, мы не используем скобки: мы не вызываем функцию, а определяем занчение переменной scream </span>
+<span class="hljs-keyword">print</span> scream()
+<span class="hljs-comment"># outputs : 'Yes!'</span>
+
+<span class="hljs-comment"># Более того, можете удалить старое имя shout, а функция будет все еще доступна из scream </span>
+<span class="hljs-keyword">del</span> shout
+<span class="hljs-keyword">try</span>:
+    <span class="hljs-keyword">print</span> shout()
+<span class="hljs-keyword">except</span> NameError, e:
+    <span class="hljs-keyword">print</span> e
+<span class="hljs-comment">#outputs: "name 'shout' is not defined"</span>
+
+<span class="hljs-keyword">print</span> scream()
+<span class="hljs-comment"># outputs: 'Yes!'</span></code></pre>
+<p>Итак, запомните этот пример, мы к нему еще вернемся. Другая особенность функций в  Python это то, что они могут быть объявлены внутри другой функции!</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">talk</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-comment"># Можете задавать функцию на ходу </span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">whisper</span><span class="hljs-params">(word=<span class="hljs-string">"yes"</span>)</span>:</span>
+        <span class="hljs-keyword">return</span> word.lower()+<span class="hljs-string">"..."</span>
+
+    <span class="hljs-comment"># и тут же её использовать!</span>
+
+<span class="hljs-keyword">print</span> whisper()
+
+talk()
+<span class="hljs-comment"># Вы вызываете talk, которая определяет whisper при каждом вызове. А потом whisper вызывает talk </span>
+<span class="hljs-comment"># outputs: </span>
+<span class="hljs-comment"># "yes..."</span>
+
+<span class="hljs-comment"># whisper существует только в пределах talk </span>
+
+<span class="hljs-keyword">try</span>:
+    <span class="hljs-keyword">print</span> whisper()
+<span class="hljs-keyword">except</span> NameError, e:
+    <span class="hljs-keyword">print</span> e
+<span class="hljs-comment">#outputs : "name 'whisper' is not defined"*</span></code></pre>
+<h3>Ссылки на функции</h3>
+<p>Еще не запутались? А теперь самая интересная часть. Так как функции это ни что иное как объекты, то следовательно:</p>
+<ul>
+<li>их можно назначать переменным</li>
+<li>они могут быть объявлены внутри другой функции</li>
+</ul>
+<p>То есть функция может вернуть другую функцию в качестве результата:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">getTalk</span><span class="hljs-params">(type=<span class="hljs-string">"shout"</span>)</span>:</span>
+    <span class="hljs-comment"># Определяем функции на ходу</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">shout</span><span class="hljs-params">(word=<span class="hljs-string">"yes"</span>)</span>:</span>
+        <span class="hljs-keyword">return</span> word.capitalize()+<span class="hljs-string">"!"</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">whisper</span><span class="hljs-params">(word=<span class="hljs-string">"yes"</span>)</span> :</span>
+        <span class="hljs-keyword">return</span> word.lower()+<span class="hljs-string">"..."</span>
+
+    <span class="hljs-comment"># Потом возвращаем одну из них</span>
+    <span class="hljs-keyword">if</span> type == <span class="hljs-string">"shout"</span>:
+    <span class="hljs-comment"># Не используем скобки, так как мы не вызываем функцию, мы возвращаем объект функции</span>
+        <span class="hljs-keyword">return</span> shout  
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-keyword">return</span> whisper
+
+<span class="hljs-comment"># Указываем функцию в качестве значения переменной</span>
+talk = getTalk()      
+
+<span class="hljs-comment"># talk - объект функции </span>
+<span class="hljs-keyword">print</span> talk
+<span class="hljs-comment">#outputs : &lt;function shout at 0xb7ea817c&gt;</span>
+
+<span class="hljs-comment"># Объект вызывается при исполнении функции:</span>
+<span class="hljs-keyword">print</span> talk()
+<span class="hljs-comment">#outputs : Yes!</span>
+
+<span class="hljs-comment"># Можно его использовать напрямую:</span>
+<span class="hljs-keyword">print</span> getTalk(<span class="hljs-string">"whisper"</span>)()
+<span class="hljs-comment">#outputs : yes...</span></code></pre>
+<p>Стоп! Это еще не все! Если можно вернуть функцию, то и передать в качестве параметра её тоже можно.</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">doSomethingBefore</span><span class="hljs-params">(func)</span>:</span> 
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"I do something before then I call the function you gave me"</span>
+    <span class="hljs-keyword">print</span> func()
+
+doSomethingBefore(scream)
+<span class="hljs-comment">#outputs: </span>
+<span class="hljs-comment">#I do something before then I call the function you gave me</span>
+<span class="hljs-comment">#Yes!</span></code></pre>
+<p>Вот в целом и все, что надо знать о декораторах. То есть, декораторы это что-то вроде оболочки. Они позволяют исполнять код до и после функции, которую они окружают без изменения самой функции.</p>
+<h3>Самодельные декораторы</h3>
+<p>Как сделать их вручную?</p>
+<pre><code class="language-python hljs"><span class="hljs-comment"># Декоратор это функция, которая ожидает другую функцию в качестве параметра</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_shiny_new_decorator</span><span class="hljs-params">(a_function_to_decorate)</span>:</span>
+    <span class="hljs-comment"># Внутри декоратор определяет функцию на ходу</span>
+    <span class="hljs-comment"># Эта функция окружит изначальную функцию</span>
+    <span class="hljs-comment"># Так что код может быть исполнен как до, так и после неё</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">the_wrapper_around_the_original_function</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-comment"># Сюда размещаем код для выполнения до оригинальной функции</span>
+        <span class="hljs-comment"># вызов функции</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"Before the function runs"</span>
+
+        <span class="hljs-comment"># Здесь вызываем функцию со скобками</span>
+        a_function_to_decorate()
+
+        <span class="hljs-comment"># Здесь располагается код, который будет исполнен после оригинальной функции</span>
+        <span class="hljs-comment"># вызов функции</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"After the function runs"</span>
+
+    <span class="hljs-comment"># Здесь, "a_function_to_decorate" не было запущена</span>
+    <span class="hljs-comment"># Возвращаем только что созданную функцию.</span>
+    <span class="hljs-comment"># Она содержит код для выполнения до и после оригинальной функции.</span>
+    <span class="hljs-keyword">return</span> the_wrapper_around_the_original_function
+
+<span class="hljs-comment"># Представьте, что вы создали функцию и не хотите больше её изменять</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">a_stand_alone_function</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"I am a stand alone function, don't you dare modify me"</span>
+
+a_stand_alone_function() 
+<span class="hljs-comment">#outputs: I am a stand alone function, don't you dare modify me</span>
+
+<span class="hljs-comment"># Окружите её декоратором, чтобы изменить её работу.</span>
+<span class="hljs-comment"># Просто передайте её декоратору, который динамически окружит её</span>
+<span class="hljs-comment"># и вернет вместо неё тот код, который нужен вам</span>
+a_stand_alone_function_decorated = my_shiny_new_decorator(a_stand_alone_function)
+a_stand_alone_function_decorated()
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#Before the function runs</span>
+<span class="hljs-comment">#I am a stand alone function, don't you dare modify me</span>
+<span class="hljs-comment">#After the function runs</span></code></pre>
+<p>Теперь, вы наверное сделаете так, чтобы каждый раз при вызове  функции <code>a_stand_alone_function</code>, вместо неё отрабатывала функция <code>a_stand_alone_function_decorated</code>. Все довольно просто, просто верните функцию <code>my_shiny_new_decorator</code> из <code>a_stand_alone_function</code>.</p>
+<pre><code class="language-python hljs">a_stand_alone_function = my_shiny_new_decorator(a_stand_alone_function)
+a_stand_alone_function()
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#До запуска функции</span>
+<span class="hljs-comment">#I am a stand alone function, don't you dare modify me</span>
+<span class="hljs-comment">#После запуска</span>
+
+<span class="hljs-comment"># And guess what? That's EXACTLY what decorators do!</span></code></pre>
+<h3>Разоблачение декораторов</h3>
+<p>В предыдущем примере использован следующий синтаксис декоратора:</p>
+<pre><code class="language-python hljs"><span class="hljs-decorator">@my_shiny_new_decorator</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">another_stand_alone_function</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"Leave me alone"</span>
+
+another_stand_alone_function()  
+<span class="hljs-comment">#outputs:  </span>
+<span class="hljs-comment">#Before the function runs</span>
+<span class="hljs-comment">#Leave me alone</span>
+<span class="hljs-comment">#After the function runs</span></code></pre>
+<p>Вот так все просто. <strong>@decorator</strong> - просто ссылка на:</p>
+<pre><code class="language-python hljs">another_stand_alone_function = my_shiny_new_decorator(another_stand_alone_function)</code></pre>
+<p>Декораторы это версия паттерна проектирования <strong>Декоратор</strong> для Python. Вообще в Python включено несколько классических паттернов для облегчения процесса разработки, например <strong>итераторы</strong>.</p>
+<p>Конечно можно накапливать декораторы:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">bread</span><span class="hljs-params">(func)</span>:</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"&lt;/''''''\&gt;"</span>
+      func()
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"&lt;\______/&gt;"</span>
+  <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">ingredients</span><span class="hljs-params">(func)</span>:</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"#tomatoes#"</span>
+      func()
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"~salad~"</span>
+  <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">sandwich</span><span class="hljs-params">(food=<span class="hljs-string">"--ham--"</span>)</span>:</span>
+  <span class="hljs-keyword">print</span> food
+
+sandwich()
+<span class="hljs-comment">#outputs: --ham--</span>
+sandwich = bread(ingredients(sandwich))
+sandwich()
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#&lt;/''''''\&gt;</span>
+<span class="hljs-comment"># #tomatoes#</span>
+<span class="hljs-comment"># --ham--</span>
+<span class="hljs-comment"># ~salad~</span>
+<span class="hljs-comment">#&lt;\______/&gt;</span></code></pre>
+<p>Используем синтаксис декораторов в Python:</p>
+<pre><code class="language-python hljs"><span class="hljs-decorator">@bread</span>
+<span class="hljs-decorator">@ingredients</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">sandwich</span><span class="hljs-params">(food=<span class="hljs-string">"--ham--"</span>)</span>:</span>
+  <span class="hljs-keyword">print</span> food
+
+sandwich()
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#&lt;/''''''\&gt;</span>
+<span class="hljs-comment"># #tomatoes#</span>
+<span class="hljs-comment"># --ham--</span>
+<span class="hljs-comment"># ~salad~</span>
+<span class="hljs-comment">#&lt;\______/&gt;</span></code></pre>
+<p>Порядок указания декораторов имеет значение:</p>
+<pre><code class="language-python hljs"><span class="hljs-decorator">@ingredients</span>
+<span class="hljs-decorator">@bread</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">strange_sandwich</span><span class="hljs-params">(food=<span class="hljs-string">"--ham--"</span>)</span>:</span>
+  <span class="hljs-keyword">print</span> food
+
+strange_sandwich()
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">##tomatoes#</span>
+<span class="hljs-comment">#&lt;/''''''\&gt;</span>
+<span class="hljs-comment"># --ham--</span>
+<span class="hljs-comment">#&lt;\______/&gt;</span>
+<span class="hljs-comment"># ~salad~</span></code></pre>
+<p>Наконец ответ на вопрос</p>
+<p>В заключении вы видите ответ на сам вопрос:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">makebold</span><span class="hljs-params">(fn)</span>:</span>
+  <span class="hljs-comment"># Функция которую возвращает декоратор</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;b&gt;"</span> + fn() + <span class="hljs-string">"&lt;/b&gt;"</span>
+  <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-comment"># Декоратор для создания курсива</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">makeitalic</span><span class="hljs-params">(fn)</span>:</span>
+  <span class="hljs-comment"># Функция возвращаемая декоратором</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+      <span class="hljs-comment"># Добавление кода до и после</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-string">"&lt;i&gt;"</span> + fn() + <span class="hljs-string">"&lt;/i&gt;"</span>
+  <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-decorator">@makebold</span>
+<span class="hljs-decorator">@makeitalic</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">say</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-string">"hello"</span>
+
+<span class="hljs-keyword">print</span> say() 
+<span class="hljs-comment">#outputs: &lt;b&gt;&lt;i&gt;hello&lt;/i&gt;&lt;/b&gt;</span>
+
+<span class="hljs-comment"># А это аналог </span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">say</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-string">"hello"</span>
+say = makebold(makeitalic(say))
+
+<span class="hljs-keyword">print</span> say() 
+<span class="hljs-comment">#outputs: &lt;b&gt;&lt;i&gt;hello&lt;/i&gt;&lt;/b&gt;</span></code></pre>
+<p>В принципе на этом можно остановиться, но если желание ещё не пропало узнать новое о декораторах, то читаем дальше.</p>
+<h3>Передача параметров в функции окруженные декоратором</h3>
+<pre><code class="language-python hljs"><span class="hljs-comment"># Никакого волшебства, просто передаем параметр в декоратор:</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">a_decorator_passing_arguments</span><span class="hljs-params">(function_to_decorate)</span>:</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">a_wrapper_accepting_arguments</span><span class="hljs-params">(arg1, arg2)</span>:</span>
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"I got args! Look:"</span>, arg1, arg2
+      function_to_decorate(arg1, arg2)
+  <span class="hljs-keyword">return</span> a_wrapper_accepting_arguments
+
+<span class="hljs-comment"># Так как вы вызываете функцию, которую вернул декоратор, вы вызываете саму оболочку, а параметры будут переданы в окружаемую функцию</span>
+<span class="hljs-decorator">@a_decorator_passing_arguments</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">print_full_name</span><span class="hljs-params">(first_name, last_name)</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"My name is"</span>, first_name, last_name
+
+print_full_name(<span class="hljs-string">"Peter"</span>, <span class="hljs-string">"Venkman"</span>)
+<span class="hljs-comment"># outputs:</span>
+<span class="hljs-comment">#I got args! Look: Peter Venkman</span>
+<span class="hljs-comment">#My name is Peter Venkman</span></code></pre>
+<h3>Применение декораторов к методам</h3>
+<p>Как можно было уже догадаться, по-сути, методы и функции это одно и тоже в Python, за исключением того, что методы должны получить ссылку на родительский объект в качестве первого параметра (<code>self</code>). Это означает, что декораторы для них строятся абсолютно так же. Просто не забывайте про <code>self</code>:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method_friendly_decorator</span><span class="hljs-params">(method_to_decorate)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">(self, lie)</span>:</span>
+        lie = lie - <span class="hljs-number">3</span>
+        <span class="hljs-keyword">return</span> method_to_decorate(self, lie)
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Lucy</span><span class="hljs-params">(object)</span>:</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.age = <span class="hljs-number">32</span>
+
+    <span class="hljs-decorator">@method_friendly_decorator</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">sayYourAge</span><span class="hljs-params">(self, lie)</span>:</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"I am %s, what did you think?"</span> % (self.age + lie)
+
+l = Lucy()
+l.sayYourAge(-<span class="hljs-number">3</span>)
+<span class="hljs-comment">#outputs: I am 26, what did you think?</span></code></pre>
+<p>Конечно при создании глобального декоратора, который будет применен для всех функций и методов, нужно использовать <code>*args</code> и <code>**kwargs</code>.</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">a_decorator_passing_arbitrary_arguments</span><span class="hljs-params">(function_to_decorate)</span>:</span>
+    <span class="hljs-comment"># Оболочка принимает любые аргументы</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">a_wrapper_accepting_arbitrary_arguments</span><span class="hljs-params">(*args, **kwargs)</span>:</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"Do I have args?:"</span>
+        <span class="hljs-keyword">print</span> args
+        <span class="hljs-keyword">print</span> kwargs
+        <span class="hljs-comment"># Затем распаковываем аргументы (*args, **kwargs)</span>
+        function_to_decorate(*args, **kwargs)
+    <span class="hljs-keyword">return</span> a_wrapper_accepting_arbitrary_arguments
+
+<span class="hljs-decorator">@a_decorator_passing_arbitrary_arguments</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">function_with_no_argument</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"Python is cool, no argument here."</span>
+
+function_with_no_argument()
+<span class="hljs-comment">#outputs</span>
+<span class="hljs-comment">#Проверяем наличие аргументов:</span>
+<span class="hljs-comment">#()</span>
+<span class="hljs-comment">#{}</span>
+<span class="hljs-comment">#Аргументы отсутствуют.</span>
+
+<span class="hljs-decorator">@a_decorator_passing_arbitrary_arguments</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">function_with_arguments</span><span class="hljs-params">(a, b, c)</span>:</span>
+    <span class="hljs-keyword">print</span> a, b, c
+
+function_with_arguments(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>)
+<span class="hljs-comment">#outputs</span>
+<span class="hljs-comment">#Проверяем наличие аргументов:</span>
+<span class="hljs-comment">#(1, 2, 3)</span>
+<span class="hljs-comment">#{}</span>
+<span class="hljs-comment"># 1 2 3 </span>
+
+<span class="hljs-decorator">@a_decorator_passing_arbitrary_arguments</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">function_with_named_arguments</span><span class="hljs-params">(a, b, c, platypus=<span class="hljs-string">"Why not ?"</span>)</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"Do %s, %s and %s like platypus? %s"</span> % (a, b, c, platypus)
+
+function_with_named_arguments(<span class="hljs-string">"Bill"</span>, <span class="hljs-string">"Linus"</span>, <span class="hljs-string">"Steve"</span>, platypus=<span class="hljs-string">"Indeed!"</span>)
+<span class="hljs-comment">#outputs</span>
+<span class="hljs-comment">#Проверяем наличие аргументов :</span>
+<span class="hljs-comment">#('Bill', 'Linus', 'Steve')</span>
+<span class="hljs-comment">#{'platypus': 'Indeed!'}</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Mary</span><span class="hljs-params">(object)</span>:</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        self.age = <span class="hljs-number">31</span>
+
+    <span class="hljs-decorator">@a_decorator_passing_arbitrary_arguments</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">sayYourAge</span><span class="hljs-params">(self, lie=-<span class="hljs-number">3</span>)</span>:</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"I am %s, what did you think ?"</span> % (self.age + lie)
+
+m = Mary()
+m.sayYourAge()
+<span class="hljs-comment">#outputs</span>
+<span class="hljs-comment"># Do I have args?:</span>
+<span class="hljs-comment">#(&lt;__main__.Mary object at 0xb7d303ac&gt;,)</span>
+<span class="hljs-comment">#{}</span>
+<span class="hljs-comment">#I am 28, what did you think?</span></code></pre>
+<h3>Передача параметров декораторам</h3>
+<p>Отлично, а что скажете на тему передачи аргументов самому декоратору? Тут есть небольшая хитрость. По сути декоратор принимает в качестве параметра только функцию и вы не можете передать аргументы функции окруженной декоратором напрямую.</p>
+<p>Перед тем как показать вам решение проблемы, давайте рассмотрим пример:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_decorator</span><span class="hljs-params">(func)</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"I am a ordinary function"</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"I am function returned by the decorator"</span>
+      func()
+  <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-comment"># Вызывать можно и без "@"</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">lazy_function</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"zzzzzzzz"</span>
+
+decorated_function = my_decorator(lazy_function)
+<span class="hljs-comment">#outputs: I am a ordinary function</span>
+
+<span class="hljs-comment">#Вывод - "I am a ordinary function":</span>
+<span class="hljs-comment"># calling a function. Nothing magic.</span>
+
+<span class="hljs-decorator">@my_decorator</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">lazy_function</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"zzzzzzzz"</span>
+
+<span class="hljs-comment">#outputs: I am a ordinary function</span></code></pre>
+<p>Ничего не изменилось. Происходит вызов <code>my_decorator</code>. Итак, когда вы указывете <code>@my_decorator</code> вы говорите Python вызвать функцию этого декоратора.</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorator_maker</span><span class="hljs-params">()</span>:</span>
+
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"I make decorators! I am executed only once: when you make me create a decorator."</span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_decorator</span><span class="hljs-params">(func)</span>:</span>
+
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"I am a decorator! I am executed only when you decorate a function."</span>
+
+      <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapped</span><span class="hljs-params">()</span>:</span>
+          <span class="hljs-keyword">print</span> (<span class="hljs-string">"I am the wrapper around the decorated function. "</span>
+                <span class="hljs-string">"I am called when you call the decorated function. "</span>
+                <span class="hljs-string">"As the wrapper, I return the RESULT of the decorated function."</span>)
+          <span class="hljs-keyword">return</span> func()
+
+      <span class="hljs-keyword">print</span> <span class="hljs-string">"As the decorator, I return the wrapped function."</span>
+
+      <span class="hljs-keyword">return</span> wrapped
+
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"As a decorator maker, I return a decorator"</span>
+  <span class="hljs-keyword">return</span> my_decorator
+
+<span class="hljs-comment"># Создадим новый декоратор</span>
+new_decorator = decorator_maker()       
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I make decorators! I am executed only once: when you make me create a decorator.</span>
+<span class="hljs-comment">#As a decorator maker, I return a decorator</span>
+
+<span class="hljs-comment"># Окружаем функцию декоратором</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_function</span><span class="hljs-params">()</span>:</span>
+  <span class="hljs-keyword">print</span> <span class="hljs-string">"I am the decorated function."</span>
+
+decorated_function = new_decorator(decorated_function)
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I am a decorator! I am executed only when you decorate a function.</span>
+<span class="hljs-comment">#Возвращаем окруженную функцию</span>
+
+<span class="hljs-comment"># Вызов функции:</span>
+decorated_function()
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I am the wrapper around the decorated function. I am called when you call the decorated function.</span>
+<span class="hljs-comment">#As the wrapper, I return the RESULT of the decorated function.</span>
+<span class="hljs-comment">#I am the decorated function.</span></code></pre>
+<p>Ничего удивительного. Проделаем все то же самое, но пропустим вспомогательные переменные:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_function</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"I am the decorated function."</span>
+decorated_function = decorator_maker()(decorated_function)
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I make decorators! I am executed only once: when you make me create a decorator.</span>
+<span class="hljs-comment">#As a decorator maker, I return a decorator</span>
+<span class="hljs-comment">#I am a decorator! I am executed only when you decorate a function.</span>
+<span class="hljs-comment">#As the decorator, I return the wrapped function.</span>
+
+<span class="hljs-comment"># Finally:</span>
+decorated_function()    
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I am the wrapper around the decorated function. I am called when you call the decorated function.</span>
+<span class="hljs-comment">#As the wrapper, I return the RESULT of the decorated function.</span>
+<span class="hljs-comment">#I am the decorated function.</span></code></pre>
+<p>Упростим решение:</p>
+<pre><code class="language-python hljs"><span class="hljs-decorator">@decorator_maker()</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_function</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"I am the decorated function."</span>
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I make decorators! I am executed only once: when you make me create a decorator.</span>
+<span class="hljs-comment">#As a decorator maker, I return a decorator</span>
+<span class="hljs-comment">#I am a decorator! I am executed only when you decorate a function.</span>
+<span class="hljs-comment">#As the decorator, I return the wrapped function.</span>
+
+<span class="hljs-comment">#Eventually: </span>
+decorated_function()    
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I am the wrapper around the decorated function. I am called when you call the decorated function.</span>
+<span class="hljs-comment">#As the wrapper, I return the RESULT of the decorated function.</span>
+<span class="hljs-comment">#I am the decorated function.</span></code></pre>
+<p>Заметили? Мы используем вызов функции с синтаксисом <code>@</code>. Вернемся к декораторам с аргументами. Если мы применяем функции для генерации декораторов на ходу, то можем и передавать аргументы этой функции, не так ли?</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorator_maker_with_arguments</span><span class="hljs-params">(decorator_arg1, decorator_arg2)</span>:</span>
+
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"I make decorators! And I accept arguments:"</span>, decorator_arg1, decorator_arg2
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_decorator</span><span class="hljs-params">(func)</span>:</span>
+        <span class="hljs-comment"># Замыкания предоставляют нам возможность передавать аргументы.</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"I am the decorator. Somehow you passed me arguments:"</span>, decorator_arg1, decorator_arg2
+
+        <span class="hljs-comment"># Не перепутайте параметры декоратора и функции</span>
+        <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapped</span><span class="hljs-params">(function_arg1, function_arg2)</span> :</span>
+            <span class="hljs-keyword">print</span> (<span class="hljs-string">"I am the wrapper around the decorated function.\n"</span>
+            <span class="hljs-string">"I can access all the variables\n"</span>
+            <span class="hljs-string">"\t- from the decorator: {0} {1}\n"</span>
+            <span class="hljs-string">"\t- from the function call: {2} {3}\n"</span>
+            <span class="hljs-string">"Then I can pass them to the decorated function"</span>
+            .format(decorator_arg1, decorator_arg2,
+            function_arg1, function_arg2))
+            <span class="hljs-keyword">return</span> func(function_arg1, function_arg2)
+
+        <span class="hljs-keyword">return</span> wrapped
+
+    <span class="hljs-keyword">return</span> my_decorator
+
+<span class="hljs-decorator">@decorator_maker_with_arguments("Leonard", "Sheldon")</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_function_with_arguments</span><span class="hljs-params">(function_arg1, function_arg2)</span>:</span>
+    <span class="hljs-keyword">print</span> (<span class="hljs-string">"I am the decorated function and only knows about my arguments: {0}"</span>
+           <span class="hljs-string">" {1}"</span>.format(function_arg1, function_arg2))
+
+decorated_function_with_arguments(<span class="hljs-string">"Rajesh"</span>, <span class="hljs-string">"Howard"</span>)
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I make decorators! And I accept arguments: Leonard Sheldon</span>
+<span class="hljs-comment">#I am the decorator. Somehow you passed me arguments: Leonard Sheldon</span>
+<span class="hljs-comment">#I am the wrapper around the decorated function. </span>
+<span class="hljs-comment">#I can access all the variables </span>
+<span class="hljs-comment">#    - from the decorator: Leonard Sheldon </span>
+<span class="hljs-comment">#    - from the function call: Rajesh Howard </span>
+<span class="hljs-comment">#Then I can pass them to the decorated function</span>
+<span class="hljs-comment">#I am the decorated function and only knows about my arguments: Rajesh Howard</span></code></pre>
+<p>Вот вам и декоратор с аргументами, которые можно задать при помощи переменных.</p>
+<pre><code class="language-python hljs">c1 = <span class="hljs-string">"Penny"</span>
+c2 = <span class="hljs-string">"Leslie"</span>
+
+<span class="hljs-decorator">@decorator_maker_with_arguments("Leonard", c1)</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_function_with_arguments</span><span class="hljs-params">(function_arg1, function_arg2)</span>:</span>
+    <span class="hljs-keyword">print</span> (<span class="hljs-string">"I am the decorated function and only knows about my arguments:"</span>
+           <span class="hljs-string">" {0} {1}"</span>.format(function_arg1, function_arg2))
+
+decorated_function_with_arguments(c2, <span class="hljs-string">"Howard"</span>)
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#I make decorators! And I accept arguments: Leonard Penny</span>
+<span class="hljs-comment">#I am the decorator. Somehow you passed me arguments: Leonard Penny</span>
+<span class="hljs-comment">#I am the wrapper around the decorated function. </span>
+<span class="hljs-comment">#I can access all the variables </span>
+<span class="hljs-comment">#    - from the decorator: Leonard Penny </span>
+<span class="hljs-comment">#    - from the function call: Leslie Howard </span>
+<span class="hljs-comment">#Then I can pass them to the decorated function</span>
+<span class="hljs-comment">#I am the decorated function and only knows about my arguments: Leslie Howard</span></code></pre>
+<p>Как видите, любому декоратору можно передать параметры при таком подходе. Ничего не мешает использовать <code>*args</code> и <code>**kwargs</code>. Но помните, что декораторы вызываются только один раз. Только когда Python импортирует этот скрипт. То есть динамически установить значения этих переменных вы не сможете. Когда вы импортируете скрипт, функция уже использует декоратор, поэтому поменять что-то в последствии не получится.</p>
+<h3>Еще пример: декоратор декорирующий декоратор</h3>
+<p>Вот такой вот бонус. Приведу сниппет кода, чтобы любой декоратор принимал любой параметр. В итоге, для передачи аргументов, мы создали наш декоратор при помощи вспомогательной функции. Давайте напишем декоратор для декоратора:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorator_with_args</span><span class="hljs-params">(decorator_to_enhance)</span>:</span>
+  <span class="hljs-string">""" 
+Эта функция должна применяться в качестве декоратора. Она должна декорировать другую функцию, которая в свою очередь тоже должна использоваться в качестве декоратора. Такой подход позволит любому декоратору принимать любое количество параметров
+     """</span>
+
+    <span class="hljs-comment"># Используем тот же трюк для передачи аргументов</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorator_maker</span><span class="hljs-params">(*args, **kwargs)</span>:</span>
+
+        <span class="hljs-comment"># На ходу создаем декоратор, который принимает только функцию и скрывает переданные параметры от создателя.</span>
+         <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorator_wrapper</span><span class="hljs-params">(func)</span>:</span>
+
+            <span class="hljs-comment"># Возвращаем результат оригинального декоратора, который, в конце концов, ни что иное, как обычная функция. Единственная загвоздка в том, что декоратор должен выглядеть следующим образом:                    return decorator_to_enhance(func, *args, **kwargs)</span>
+
+        <span class="hljs-keyword">return</span> decorator_wrapper
+
+    <span class="hljs-keyword">return</span> decorator_maker</code></pre>
+<p>Пример его использования:</p>
+<pre><code class="language-python hljs"><span class="hljs-comment"># Создаем функцию, которую будем использовать в качестве декоратора. </span>
+<span class="hljs-comment"># Не забудьте вид объявления декоратора "decorator(func, *args, **kwargs)"</span>
+<span class="hljs-decorator">@decorator_with_args </span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_decorator</span><span class="hljs-params">(func, *args, **kwargs)</span>:</span> 
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">(function_arg1, function_arg2)</span>:</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"Decorated with"</span>, args, kwargs
+        <span class="hljs-keyword">return</span> func(function_arg1, function_arg2)
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-decorator">@decorated_decorator(42, 404, 1024)</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decorated_function</span><span class="hljs-params">(function_arg1, function_arg2)</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"Hello"</span>, function_arg1, function_arg2
+
+decorated_function(<span class="hljs-string">"Universe and"</span>, <span class="hljs-string">"everything"</span>)
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#Decorated with (42, 404, 1024) {}</span>
+<span class="hljs-comment">#Hello Universe and everything</span>
+
+<span class="hljs-comment"># Whoooot!</span></code></pre>
+<p>Да-да, все это выглядит примерно следующим образом: "Чтобы понять рекурсию, сначала надо понять рекурсию". Но в итоге разве нет чувства, что вы освоили что-то новое и интересное?</p>
+<h3>Правильное применение декораторов</h3>
+<ul>
+<li>Декораторы замедляют работу функций. Не забывайте об этом.</li>
+<li>Снять декоратор с функции невозможно. Конечно существует примеры как это сделать, но так никто не поступает. Так что если вы применили декоратор, то с ним придется работать на протяжении всего кода.</li>
+<li>Декораторы окружают функции, что затрудняет их отладку.</li>
+</ul>
+<p>Python 2.5 и выше представляет решение последней проблемы. Он включает в себя модуль <strong>functools</strong> (functools.wraps), который копирует название, модуль и документацию каждой задекориованной функции. Самое интересное - <code>functools.wraps</code> и есть декоратор.</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"foo"</span>
+
+<span class="hljs-keyword">print</span> foo.__name__
+<span class="hljs-comment">#outputs: foo</span>
+
+<span class="hljs-comment"># С декоратором выглядет немного сумбурно    </span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">bar</span><span class="hljs-params">(func)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"bar"</span>
+        <span class="hljs-keyword">return</span> func()
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-decorator">@bar</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"foo"</span>
+
+<span class="hljs-keyword">print</span> foo.__name__
+<span class="hljs-comment">#outputs: wrapper</span>
+
+<span class="hljs-comment"># "functools" поможет</span>
+<span class="hljs-keyword">import</span> functools
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">bar</span><span class="hljs-params">(func)</span>:</span>
+    <span class="hljs-comment"># "wrapper" окружает "func"</span>
+    <span class="hljs-decorator">@functools.wraps(func)</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"bar"</span>
+        <span class="hljs-keyword">return</span> func()
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-decorator">@bar</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">print</span> <span class="hljs-string">"foo"</span>
+
+<span class="hljs-keyword">print</span> foo.__name__
+<span class="hljs-comment">#outputs: foo</span></code></pre>
+<h3>Когда стоит применять декораторы?</h3>
+<p>Главный вопрос - а когда, собственно, применять декораторы? Конечно выглядят они отлично, но где же их использовать? Могу привести хоть 1000 примеров. Классический пример - добавление функционала для функции из сторонней библиотеки (которую вы не можете править). Вы можете применять декораторы для расширения нескольких функций, чтобы не переписывать их каждый раз. Это избавляет от излишнего кода:</p>
+<pre><code class="language-python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">benchmark</span><span class="hljs-params">(func)</span>:</span>
+    <span class="hljs-string">"""
+    Декоратор выводящий время работы функции
+    """</span>
+    <span class="hljs-keyword">import</span> time
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">(*args, **kwargs)</span>:</span>
+        t = time.clock()
+        res = func(*args, **kwargs)
+        <span class="hljs-keyword">print</span> func.__name__, time.clock()-t
+        <span class="hljs-keyword">return</span> res
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">logging</span><span class="hljs-params">(func)</span>:</span>
+    <span class="hljs-string">"""
+    Декоратор, сохраняющий данные об активности скрипта
+    """</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">(*args, **kwargs)</span>:</span>
+        res = func(*args, **kwargs)
+        <span class="hljs-keyword">print</span> func.__name__, args, kwargs
+        <span class="hljs-keyword">return</span> res
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">counter</span><span class="hljs-params">(func)</span>:</span>
+    <span class="hljs-string">"""
+    Декоратор считающий и выводящий количество исполнений функции
+    """</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">wrapper</span><span class="hljs-params">(*args, **kwargs)</span>:</span>
+        wrapper.count = wrapper.count + <span class="hljs-number">1</span>
+        res = func(*args, **kwargs)
+        <span class="hljs-keyword">print</span> <span class="hljs-string">"{0} has been used: {1}x"</span>.format(func.__name__, wrapper.count)
+        <span class="hljs-keyword">return</span> res
+    wrapper.count = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">return</span> wrapper
+
+<span class="hljs-decorator">@counter</span>
+<span class="hljs-decorator">@benchmark</span>
+<span class="hljs-decorator">@logging</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">reverse_string</span><span class="hljs-params">(string)</span>:</span>
+    <span class="hljs-keyword">return</span> str(reversed(string))
+
+<span class="hljs-keyword">print</span> reverse_string(<span class="hljs-string">"Able was I ere I saw Elba"</span>)
+<span class="hljs-keyword">print</span> reverse_string(<span class="hljs-string">"A man, a plan, a canoe, pasta, heros, rajahs, a coloratura, maps, snipe, percale, macaroni, a gag, a banana bag, a tan, a tag, a banana bag again (or a camel), a crepe, pins, Spam, a rut, a Rolo, cash, a jar, sore hats, a peon, a canal: Panama!"</span>)
+
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#reverse_string ('Able was I ere I saw Elba',) {}</span>
+<span class="hljs-comment">#wrapper 0.0</span>
+<span class="hljs-comment">#wrapper has been used: 1x </span>
+<span class="hljs-comment">#ablE was I ere I saw elbA</span>
+<span class="hljs-comment">#reverse_string ('A man, a plan, a canoe, pasta, heros, rajahs, a coloratura, maps, snipe, percale, macaroni, a gag, a banana bag, a tan, a tag, a banana bag again (or a camel), a crepe, pins, Spam, a rut, a Rolo, cash, a jar, sore hats, a peon, a canal: Panama!',) {}</span>
+<span class="hljs-comment">#wrapper 0.0</span>
+<span class="hljs-comment">#wrapper has been used: 2x</span>
+<span class="hljs-comment">#!amanaP :lanac a ,noep a ,stah eros ,raj a ,hsac ,oloR a ,tur a ,mapS ,snip ,eperc a ,)lemac a ro( niaga gab ananab a ,gat a ,nat a ,gab ananab a ,gag a ,inoracam ,elacrep ,epins ,spam ,arutaroloc a ,shajar ,soreh ,atsap ,eonac a ,nalp a ,nam A</span></code></pre>
+<p>Самое интересное, что вы можете использовать декораторы практически мгновенно, без переписывания существующего кода:</p>
+<pre><code class="language-python hljs"><span class="hljs-decorator">@counter</span>
+<span class="hljs-decorator">@benchmark</span>
+<span class="hljs-decorator">@logging</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_random_futurama_quote</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">import</span> httplib
+    conn = httplib.HTTPConnection(<span class="hljs-string">"slashdot.org:80"</span>)
+    conn.request(<span class="hljs-string">"HEAD"</span>, <span class="hljs-string">"/index.html"</span>)
+    <span class="hljs-keyword">for</span> key, value <span class="hljs-keyword">in</span> conn.getresponse().getheaders():
+        <span class="hljs-keyword">if</span> key.startswith(<span class="hljs-string">"x-b"</span>) <span class="hljs-keyword">or</span> key.startswith(<span class="hljs-string">"x-f"</span>):
+            <span class="hljs-keyword">return</span> value
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"No, I'm ... doesn't!"</span>
+
+<span class="hljs-keyword">print</span> get_random_futurama_quote()
+<span class="hljs-keyword">print</span> get_random_futurama_quote()
+
+<span class="hljs-comment">#outputs:</span>
+<span class="hljs-comment">#get_random_futurama_quote () {}</span>
+<span class="hljs-comment">#wrapper 0.02</span>
+<span class="hljs-comment">#wrapper has been used: 1x</span>
+<span class="hljs-comment">#The laws of science be a harsh mistress.</span>
+<span class="hljs-comment">#get_random_futurama_quote () {}</span>
+<span class="hljs-comment">#wrapper 0.01</span>
+<span class="hljs-comment">#wrapper has been used: 2x</span>
+<span class="hljs-comment">#Curse you, merciful Poseidon!</span></code></pre>
+<p>Сам Python предлагает несколько декораторов: <code>property</code>, <code>staticmethod</code> и т.д. Django использует декораторы для кеширования и отслеживания прав на просмотр. Так что круг применения декораторов практически не ограничен.</p>
+
+                <div class="social-likes social-likes_visible social-likes_ready" data-url="http://devacademy.ru/posts/dekoratoryi-v-python/" data-title="Декораторы в Python">
+                    <div class="social-likes__widget social-likes__widget_facebook" title="Поделиться ссылкой на Фейсбуке"><span class="social-likes__button social-likes__button_facebook"><span class="social-likes__icon social-likes__icon_facebook"></span>Facebook</span><span class="social-likes__counter social-likes__counter_facebook social-likes__counter_empty"></span></div>
+                    <div class="social-likes__widget social-likes__widget_twitter" title="Поделиться ссылкой в Твиттере"><span class="social-likes__button social-likes__button_twitter"><span class="social-likes__icon social-likes__icon_twitter"></span>Twitter</span><span class="social-likes__counter social-likes__counter_twitter social-likes__counter_empty"></span></div>
+                    <div class="social-likes__widget social-likes__widget_vkontakte" title="Поделиться ссылкой во Вконтакте"><span class="social-likes__button social-likes__button_vkontakte"><span class="social-likes__icon social-likes__icon_vkontakte"></span>Вконтакте</span><span class="social-likes__counter social-likes__counter_vkontakte">1</span></div>
+                    <div class="social-likes__widget social-likes__widget_plusone" title="Поделиться ссылкой в Гугл-плюсе"><span class="social-likes__button social-likes__button_plusone"><span class="social-likes__icon social-likes__icon_plusone"></span>Google+</span><span class="social-likes__counter social-likes__counter_plusone social-likes__counter_empty"></span></div>
+                </div>
+
+                <div style="margin-bottom: 25px; margin-top: 25px;">
+    <script async="" src="./Декораторы в Python _ DEVACADEMY_files/analytics.js.Без названия"></script><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <!-- bottom -->
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-0720644859827100" data-ad-slot="3248048998" data-ad-format="auto"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>            </div>
+            <div class="col span_3_of_12 sidebar pull-right" style="height: 16328px;">
+                
+                <div class="post-status cf">
+                    <ul>
+                        <li><a href="http://devacademy.ru/posts/dekoratoryi-v-python/#comments"><i class="ico-comments"></i> 0</a></li>
+                        <li>
+                                                            <a href="javascript:void(0)" class="a-favs" data-popup="login">
+                                    <i class="ico-favs"></i> <span data-count="0">0</span>
+                                </a>
+                                                    </li>
+                        <li><a href="http://devacademy.ru/posts/dekoratoryi-v-python/"><i class="ico-view"></i> 4,605</a></li>
+                    </ul>
+                </div>
+                <div class="profile-bar">
+                    <div class="ava">
+                        <a href="http://devacademy.ru/@admin">
+                            <img src="./Декораторы в Python _ DEVACADEMY_files/557e845b18fe6.jpg" alt="">
+                        </a>
+                    </div>
+                    <a href="http://devacademy.ru/@admin" class="a-name">devacademy</a>
+                                            <a href="http://devacademy.ru/@admin" class="a-position">root</a>
+                                        <div class="level"></div>
+                    <nav class="tags">
+                                                    <a href="http://devacademy.ru/posts/tags/python/">Python</a>
+                                                    <a href="http://devacademy.ru/posts/tags/diekoratory/">Декораторы</a>
+                                            </nav>
+                </div>
+
+                
+                <div>
+    <a href="https://www.digitalocean.com/?refcode=90274e4e602d" target="_blank"><img src="./Декораторы в Python _ DEVACADEMY_files/do.png"></a>
+</div>                <div id="sidebar-container" data-mfx-top-position="20">
+    <div class="content-widget banner">
+        <script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-0720644859827100" data-ad-slot="3297884992"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+    <br>
+    <div class="content-widget banner">
+        <script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <!-- right_banner_2 -->
+        <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-0720644859827100" data-ad-slot="1771315793"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</div>            </div>
+        </div>
+
+        <div class="group">
+    <div class="commentswrap">
+        <header>
+            <h3>Комментарии</h3>
+            <div class="num">0</div>
+                            <a class="a-enter pull-right" href="javascript:void(0)" data-popup="login">Войти</a>
+                    </header>
+
+        <div id="comments" class="comments">
+                            <div class="no-comments-container">
+                    Комментариев нет.
+                </div>
+                    </div>
+
+                    <a class="a-enter" href="javascript:void(0)" data-popup="login">Войдите</a> чтобы оставлять комментарии.
+            </div>
+</div>
+    </div>
+
+    <div class="fpadding cf" style="padding-bottom: 157px;"></div>
+</div>
+
+<footer class="footer" style="margin-top: -157px;">
+    <div class="section">
+        <div class="col span_3_of_12">
+            <p>© 2015 devacademy</p>
+        </div>
+        <div class="col span_3_of_12">
+            <ul>
+                <li><a href="http://devacademy.ru/about/">О проекте</a></li>
+                <li><a href="http://devacademy.ru/advertise/">Реклама</a></li>
+                <li><a href="http://devacademy.ru/privacy_policy/">Приватность</a></li>
+            </ul>
+        </div>
+        <div class="col span_3_of_12">
+            <ul>
+                <li><a href="http://devacademy.ru/terms_and_conditions/">Правила</a></li>
+                <li><a href="http://devacademy.ru/contact/">Контакт</a></li>
+                <li><a href="http://devacademy.ru/feed/posts/latest/">Лента RSS</a></li>
+            </ul>
+        </div>
+        <div class="col span_3_of_12">
+            <ul class="social">
+                <li><a class="a-fb" href="https://www.facebook.com/devacademyru" target="_blank"></a></li>
+                <li><a class="a-vk" href="https://vk.com/devacademy" target="_blank"></a></li>
+                <li><a class="a-gg" href="https://plus.google.com/communities/116209493237787454857" target="_blank"></a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+<div id="login" class="popup plogin">
+    <a href="http://devacademy.ru/posts/dekoratoryi-v-python/" class="pclose"></a>
+    <h3>Вход в аккаунт</h3>
+    <form name="dae_security_login" method="post" action="http://devacademy.ru/auth/check_login/">
+
+    <div class="alert alert-danger alert-dismissible errors-container" role="alert">
+        <ul class="list"></ul>
+    </div>
+        <div class="form-group">
+            <input type="email" id="dae_security_login_email" name="dae_security_login[email]" required="required" placeholder="Электронная почта" class="form-control">
+            <img src="./Декораторы в Python _ DEVACADEMY_files/ico-email.png" alt="" class="form-ico">
+        </div>
+        <div class="form-group">
+            <input type="password" id="dae_security_login_password" name="dae_security_login[password]" required="required" placeholder="Пароль" class="form-control">
+            <img src="./Декораторы в Python _ DEVACADEMY_files/ico-passw.png" alt="" class="form-ico">
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Войти" class="btn">
+            <a href="http://devacademy.ru/register/" class="a-reg">Регистрация</a>
+        </div>
+        <div id="login-errors"></div>
+        <div style="text-align: center">
+            <a href="http://devacademy.ru/restore/password/">Восстановить пароль</a>
+        </div>
+    </form>
+    <br>
+    <h5>Или войти через:</h5>
+    <ul class="sociallinks" style="text-align: center">
+        <li><a href="http://devacademy.ru/connect/facebook" class="a-fb"></a></li>
+        <li><a href="http://devacademy.ru/connect/vkontakte" class="a-vk"></a></li>
+                            </ul>
+</div>
+
+
+
+
+
+<div id="preloader" style="display: none;"><div id="status" style="display: none;">&nbsp;</div></div>
+        <script src="./Декораторы в Python _ DEVACADEMY_files/jquery-2.1.1.min.js.Без названия"></script>
+    <script src="./Декораторы в Python _ DEVACADEMY_files/jquery.plugins.js.Без названия"></script>
+    <script src="./Декораторы в Python _ DEVACADEMY_files/custom.js.Без названия"></script>
+
+
+    <script src="./Декораторы в Python _ DEVACADEMY_files/highlight.pack.js.Без названия"></script>
+    <script src="./Декораторы в Python _ DEVACADEMY_files/social-likes.min.js.Без названия"></script>
+    <script src="./Декораторы в Python _ DEVACADEMY_files/comment.ctrl.js.Без названия"></script>
+    <script src="./Декораторы в Python _ DEVACADEMY_files/jquery.sticky-kit.min.js.Без названия"></script>
+    <script src="./Декораторы в Python _ DEVACADEMY_files/post.ctrl.js.Без названия"></script>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-45969487-1', 'auto');
+    ga('send', 'pageview');
+</script>
+
+</body></html>
